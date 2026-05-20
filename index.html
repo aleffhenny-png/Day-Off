@@ -16,33 +16,74 @@
     </header>
     <div class="linha-vermelha"></div>
 
-    <main class="main-container">
+    <nav class="abas-navegacao" style="background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 10px 20px; display: flex; gap: 15px;">
+        <button id="abaPrincipalBtn" style="padding: 8px 16px; font-weight: bold; cursor: pointer; background: #e11b22; color: white; border: none; border-radius: 4px;">📅 Painel de Folgas</button>
+        <button id="abaHistoricoBtn" style="padding: 8px 16px; font-weight: bold; cursor: pointer; background: #e0e0e0; color: #333; border: none; border-radius: 4px;">📜 Histórico Geral</button>
+    </nav>
+
+    <main id="paginaPrincipal" class="main-container" style="display: block;">
         <div class="titulo-pagina">
             <h1>Gestão de Day Off</h1>
-            <p>Escala de folgas diárias da equipe de produção.</p>
+            <p>Escala de folgas diárias e monitoramento da equipe de produção.</p>
         </div>
-        
-        <div class="card-formulario">
-            <h2>📋 SUPERVISORES DE TURNO</h2>
-            <div class="supervisores-nomes" style="padding: 5px 0; font-size: 15px; color: #333;">
-                <p>• <strong>HELLEN ALEXANDRE</strong></p>
-                <p style="margin-top: 5px;">• <strong>MARILES MORAES</strong></p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+            <div class="card-formulario">
+                <h2>Agendar Novo Day Off</h2>
+                <div class="input-group-vertical" style="margin-top: 10px;">
+                    <select id="nomeFuncionario">
+                        <option value="">Carregando lista...</option>
+                    </select>
+                    <input type="date" id="dataFolga">
+                    <button id="addBtn">AGENDAR FOLGA</button>
+                </div>
+            </div>
+
+            <div class="card-formulario">
+                <h2>🔍 Consultar Dados do Colaborador</h2>
+                <div class="input-group-vertical" style="margin-top: 10px;">
+                    <select id="consultaFuncionario" onchange="consultarColaborador()">
+                        <option value="">Selecione um nome para verificar...</option>
+                    </select>
+                    <div id="resultadoConsulta" style="margin-top: 15px; padding: 10px; background: #f9f9f9; border-left: 4px solid #0275d8; min-height: 45px; font-size: 14px; color: #555;">
+                        Selecione um funcionário acima para ver o dia do aniversário / Day Off.
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card-formulario" style="margin-top: -15px;">
-            <h2 style="font-size: 15px; color: #666;">Agendar Novo Day Off</h2>
-            <div class="input-group-vertical" style="margin-top: 10px;">
-                <select id="nomeFuncionario">
-                    <option value="">Carregando lista...</option>
-                </select>
-                <input type="date" id="dataFolga">
-                <button id="addBtn">AGENDAR FOLGA</button>
-            </div>
+        <div class="card-formulario" style="margin-bottom: 20px; border-top: 4px solid #0275d8;">
+            <h2 id="tituloAniversariantes">🎂 Aniversariantes do Mês</h2>
+            <ul id="listaAniversariantesMes" style="list-style: none; padding: 10px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                </ul>
         </div>
 
         <div id="listaItens">
             </div>
+    </main>
+
+    <main id="paginaHistorico" class="main-container" style="display: none;">
+        <div class="titulo-pagina">
+            <h1>Histórico de Day Off</h1>
+            <p>Registro completo de todos os colaboradores que já gozaram ou estão com folga agendada no sistema.</p>
+        </div>
+
+        <div class="card-formulario">
+            <h2>📜 Todos os Day Offs Registrados</h2>
+            <div style="overflow-x: auto; margin-top: 15px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                    <thead>
+                        <tr style="background-color: #f2f2f2; border-bottom: 2px solid #ddd;">
+                            <th style="padding: 12px 8px;">Nome do Colaborador</th>
+                            <th style="padding: 12px 8px;">Setor/Área</th>
+                            <th style="padding: 12px 8px;">Data do Day Off</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelaHistoricoCorpo">
+                        </tbody>
+                </table>
+            </div>
+        </div>
     </main>
 
     <script src="script.js"></script>

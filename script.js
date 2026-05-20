@@ -1,4 +1,4 @@
-// 1. Base de dados dos funcionários
+// 1. Base de dados oficial
 const dadosFuncionarios = [
     { nome: "ACIVALDO VASCONCELO SOARES", area: "C#2", aniversario: "1994-07-12", dayOff: "" },
     { nome: "ADRIANO DA SILVA FONSECA", area: "C#", aniversario: "1984-05-15", dayOff: "" },
@@ -91,28 +91,130 @@ const dadosFuncionarios = [
     { nome: "WALERIA BARBOSA DOS SANTOS PINTO", area: "INJETORAS", aniversario: "1985-01-20", dayOff: "2026-01-19" }
 ];
 
-function carregarFuncionarios() {
-    const select = document.getElementById('nomeFuncionario');
-    if (!select) return;
-    
-    select.innerHTML = '<option value="">Selecione quem vai tirar folga...</option>';
+const nomesMeses = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+function iniciarSeletores() {
+    const selectAdd = document.getElementById('nomeFuncionario');
+    const selectCheck = document.getElementById('consultaFuncionario');
+    if (!selectAdd || !selectCheck) return;
+
+    selectAdd.innerHTML = '<option value="">Selecione quem vai tirar folga...</option>';
+    selectCheck.innerHTML = '<option value="">Selecione um nome para verificar...</option>';
+
     const ordenados = [...dadosFuncionarios].sort((a, b) => a.nome.localeCompare(b.nome));
 
-    ordenados.forEach(usuario => {
-        const option = document.createElement('option');
-        option.value = usuario.nome;
-        option.textContent = `${usuario.nome} (${usuario.area || 'PRODUÇÃO'})`;
-        select.appendChild(option);
+    ordenados.forEach(u => {
+        const op1 = document.createElement('option');
+        op1.value = u.nome;
+        op1.textContent = `${u.nome} (${u.area})`;
+        selectAdd.appendChild(op1);
+
+        const op2 = document.createElement('option');
+        op2.value = u.nome;
+        op2.textContent = u.nome;
+        selectCheck.appendChild(op2);
     });
 }
 
+// NOVO: Exibe os aniversariantes do mês corrente de forma dinâmica
+function renderizarAniversariantesMes() {
+    const lista = document.getElementById('listaAniversariantesMes');
+    const titulo = document.getElementById('tituloAniversariantes');
+    if (!lista) return;
+
+    const mesAtualIndex = new Date().getMonth(); 
+    const nomeMesAtual = nomesMeses[mesAtualIndex];
+    titulo.textContent = `🎂 Aniversariantes do Mês de ${nomeMesAtual.toUpperCase()}`;
+
+    lista.innerHTML = "";
+
+    const aniversariantes = dadosFuncionarios.filter(f => {
+        if (!f.aniversario) return false;
+        const mesFuncionario = parseInt(f.aniversario.substring(5, 7), 10);
+        return (mesFuncionario - 1) === mesAtualIndex;
+    }).sort((a,b) => a.aniversario.localeCompare(b.aniversario));
+
+    if (aniversariantes.length === 0) {
+        lista.innerHTML = `<li style="color:#888; font-style:italic; grid-column: 1/-1;">Nenhum aniversariante listado neste mês.</li>`;
+        return;
+    }
+
+    aniversariantes.forEach(f => {
+        const dia = f.aniversario.substring(8, 10);
+        const li = document.createElement('li');
+        li.style.padding = "6px 10px";
+        li.style.background = "#eef4fa";
+        li.style.borderRadius = "4px";
+        li.style.fontSize = "13px";
+        li.innerHTML = `🏅 <strong>Dia ${dia}</strong> - ${f.nome} <span style="color:#666; font-size:11px;">(${f.area})</span>`;
+        lista.appendChild(li);
+    });
+}
+
+// NOVO: Consulta Individual de Dados ao selecionar no campo
+function consultarColaborador() {
+    const nomeSelected = document.getElementById('consultaFuncionario').value;
+    const divResultado = document.getElementById('resultadoConsulta');
+    if (!divResultado) return;
+
+    if (!nomeSelected) {
+        divResultado.innerHTML = "Selecione um funcionário acima para ver o dia do aniversário / Day Off.";
+        divResultado.style.borderLeftColor = "#0275d8";
+        return;
+    }
+
+    const colaborador = dadosFuncionarios.find(f => f.nome === nomeSelected);
+    if (colaborador) {
+        let dataNiverForm = "Não Informado";
+        if (colaborador.aniversario) {
+            const partes = colaborador.aniversario.split('-');
+            dataNiverForm = `${partes[2]}/${partes[1]}`;
+        }
+
+        // Calcula qual o Day Off agendado ou previsto
+        const salvos = JSON.parse(localStorage.getItem('dayOffList')) || [];
+        const manual = salvos.find(m => m.nome === colaborador.nome);
+        
+        let dataDayOffExibicao = "Ainda não definido ou pendente";
+        if (manual) {
+            const p = manual.data.split('-');
+            dataDayOffExibicao = `${p[2]}/${p[1]}/${p[0]} (Agendado na Tela)`;
+        } else if (colaborador.dayOff) {
+            const p = colaborador.dayOff.split('-');
+            dataDayOffExibicao = `${p[2]}/${p[1]}/${p[0]} (Definido em Planilha)`;
+        } else if (colaborador.aniversario) {
+            const p = colaborador.aniversario.split('-');
+            dataDayOffExibicao = `${p[2]}/${p[1]}/${new Date().getFullYear()} (Previsto pelo Aniversário)`;
+        }
+
+        divResultado.innerHTML = `
+            <strong>Colaborador:</strong> ${colaborador.nome}<br>
+            <strong>Setor/Área:</strong> ${colaborador.area}<br>
+            <strong>📅 Dia do Aniversário:</strong> ${dataNiverForm}<br>
+            <strong>⭐ Data do Day Off:</strong> <span style="color:#d9534f; font-weight:bold;">${dataDayOffExibicao}</span>
+        `;
+        divResultado.style.borderLeftColor = "#d9534f";
+    }
+}
+
+// ATUALIZADO: Salva o agendamento pedindo a CAIXA DE CONFIRMAÇÃO
 function salvarAgendamento() {
     const nome = document.getElementById('nomeFuncionario').value;
     const data = document.getElementById('dataFolga').value;
 
     if (!nome || !data) {
-        alert("Preencha todos os campos!");
+        alert("Por favor, selecione o Funcionário e a Data pretendida antes de agendar.");
         return;
+    }
+
+    const partesData = data.split('-');
+    const dataFormatadaBr = `${partesData[2]}/${partesData[1]}/${partesData[0]}`;
+
+    // Janela de confirmação nativa pedida pela chefa
+    const confirmou = confirm(`CONFIRMAÇÃO DE SEGURANÇA:\n\nVocê tem certeza que deseja agendar o Day Off do colaborador:\n👉 ${nome}\n\nPara o dia:\n📅 ${dataFormatadaBr}?`);
+    
+    if (!confirmou) {
+        return; // Cancela e não faz nada
     }
 
     const novoAgendamento = { nome: nome, data: data };
@@ -128,27 +230,14 @@ function salvarAgendamento() {
     document.getElementById('nomeFuncionario').value = '';
 
     renderizarPainelChefe();
+    alert("Day Off agendado com sucesso!");
 }
 
-// 2. Renderização simplificada: Apenas HOJE e AMANHÃ
+// ATUALIZADO: Renderiza as listas e alimenta a Tabela de Histórico da outra página
 function renderizarPainelChefe() {
-    const listaItens = document.getElementById('listaItens');
-    if (!listaItens) return;
-
-    listaItens.innerHTML = `
-        <div class="bloco-setor">
-            <h3 style="border-left: 4px solid #e11b22;">☀️ QUEM FOLGA HOJE</h3>
-            <ul id="folgaHoje" style="background: #ffffff; border: 1px solid #dddddd; padding: 15px; list-style: none;"></ul>
-        </div>
-        
-        <div class="bloco-setor" style="margin-top: 20px;">
-            <h3 style="border-left: 4px solid #f0ad4e;">🌅 QUEM FOLGA AMANHÃ</h3>
-            <ul id="folgaAmanha" style="background: #ffffff; border: 1px solid #dddddd; padding: 15px; list-style: none;"></ul>
-        </div>
-    `;
-
     const ulHoje = document.getElementById('folgaHoje');
     const ulAmanha = document.getElementById('folgaAmanha');
+    const tabelaHistorico = document.getElementById('tabelaHistoricoCorpo');
 
     const hoje = new Date();
     hoje.setHours(0, 0, 0, 0);
@@ -159,7 +248,6 @@ function renderizarPainelChefe() {
     const agendamentosManuais = JSON.parse(localStorage.getItem('dayOffList')) || [];
     let todasAsFolgas = [];
 
-    // Processa lista fixa
     dadosFuncionarios.forEach(f => {
         let dataAlvo = null;
         const manual = agendamentosManuais.find(m => m.nome === f.nome);
@@ -177,48 +265,104 @@ function renderizarPainelChefe() {
             todasAsFolgas.push({
                 nome: f.nome,
                 area: f.area,
-                time: dataAlvo.getTime()
+                time: dataAlvo.getTime(),
+                dataTexto: dataAlvo.toLocaleDateString('pt-BR')
             });
         }
     });
 
-    // Filtra e exibe estritamente quem cai em Hoje ou Amanhã
-    let contHoje = 0;
-    let contAmanha = 0;
+    // 1. Alimenta as seções da Página Inicial (Hoje e Amanhã)
+    if (listaItens) {
+        listaItens.innerHTML = `
+            <div class="bloco-setor">
+                <h3 style="border-left: 4px solid #e11b22;">☀️ QUEM FOLGA HOJE</h3>
+                <ul id="folgaHoje" style="background: #ffffff; border: 1px solid #dddddd; padding: 15px; list-style: none;"></ul>
+            </div>
+            
+            <div class="bloco-setor" style="margin-top: 20px;">
+                <h3 style="border-left: 4px solid #f0ad4e;">🌅 QUEM FOLGA AMANHÃ</h3>
+                <ul id="folgaAmanha" style="background: #ffffff; border: 1px solid #dddddd; padding: 15px; list-style: none;"></ul>
+            </div>
+        `;
+        
+        const refHoje = document.getElementById('folgaHoje');
+        const refAmanha = document.getElementById('folgaAmanha');
+        let contHoje = 0;
+        let contAmanha = 0;
 
-    todasAsFolgas.forEach(item => {
-        const li = document.createElement('li');
-        li.style.padding = "10px 0";
-        li.style.fontSize = "14px";
-        li.style.borderBottom = "1px solid #eee";
-        li.innerHTML = `• <strong>${item.nome}</strong> — Setor: ${item.area || 'Produção'}`;
+        todasAsFolgas.forEach(item => {
+            const li = document.createElement('li');
+            li.style.padding = "10px 0";
+            li.style.fontSize = "14px";
+            li.style.borderBottom = "1px solid #eee";
+            li.innerHTML = `• <strong>${item.nome}</strong> — Setor: ${item.area || 'Produção'}`;
 
-        if (item.time === hoje.getTime()) {
-            ulHoje.appendChild(li);
-            contHoje++;
-        } else if (item.time === amanha.getTime()) {
-            ulAmanha.appendChild(li);
-            contAmanha++;
-        }
-    });
+            if (item.time === hoje.getTime()) {
+                refHoje.appendChild(li);
+                contHoje++;
+            } else if (item.time === amanha.getTime()) {
+                refAmanha.appendChild(li);
+                contAmanha++;
+            }
+        });
 
-    // Mensagens limpas de lista vazia
-    if (contHoje === 0) {
-        ulHoje.innerHTML = '<li style="color: #999; font-style: italic; padding: 5px 0;">Nenhuma folga programada para o dia de hoje.</li>';
-    } else if (ulHoje.lastChild) {
-        ulHoje.lastChild.style.borderBottom = "none";
+        if (contHoje === 0) refHoje.innerHTML = '<li style="color: #999; font-style: italic; padding: 5px 0;">Nenhuma folga programada para hoje.</li>';
+        if (contAmanha === 0) refAmanha.innerHTML = '<li style="color: #999; font-style: italic; padding: 5px 0;">Nenhuma folga programada para amanhã.</li>';
     }
 
-    if (contAmanha === 0) {
-        ulAmanha.innerHTML = '<li style="color: #999; font-style: italic; padding: 5px 0;">Nenhuma folga programada para o dia de amanhã.</li>';
-    } else if (ulAmanha.lastChild) {
-        ulAmanha.lastChild.style.borderBottom = "none";
+    // 2. Alimenta a tabela da Página de Histórico Completo
+    if (tabelaHistorico) {
+        tabelaHistorico.innerHTML = "";
+        
+        // Ordena o histórico colocando as datas mais recentes/futuras primeiro
+        const ordenadasHistorico = [...todasAsFolgas].sort((a,b) => b.time - a.time);
+
+        ordenadasHistorico.forEach(item => {
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = "1px solid #eee";
+            tr.innerHTML = `
+                <td style="padding: 10px 8px; font-weight: 500;">${item.nome}</td>
+                <td style="padding: 10px 8px; color: #666;">${item.area || 'PRODUÇÃO'}</td>
+                <td style="padding: 10px 8px; font-weight: bold; color: #2e7d32;">${item.dataTexto}</td>
+            `;
+            tabelaHistorico.appendChild(tr);
+        });
     }
 }
 
+// LÓGICA DE ALTERNÂNCIA DE ABAS (PÁGINAS)
+function configurarAbas() {
+    const btnPrincipal = document.getElementById('abaPrincipalBtn');
+    const btnHistorico = document.getElementById('abaHistoricoBtn');
+    const pagPrincipal = document.getElementById('paginaPrincipal');
+    const pagHistorico = document.getElementById('paginaHistorico');
+
+    if (!btnPrincipal || !btnHistorico) return;
+
+    btnPrincipal.addEventListener('click', () => {
+        pagPrincipal.style.display = "block";
+        pagHistorico.style.display = "none";
+        btnPrincipal.style.background = "#e11b22";
+        btnPrincipal.style.color = "white";
+        btnHistorico.style.background = "#e0e0e0";
+        btnHistorico.style.color = "#333";
+    });
+
+    btnHistorico.addEventListener('click', () => {
+        pagPrincipal.style.display = "none";
+        pagHistorico.style.display = "block";
+        btnHistorico.style.background = "#e11b22";
+        btnHistorico.style.color = "white";
+        btnPrincipal.style.background = "#e0e0e0";
+        btnPrincipal.style.color = "#333";
+    });
+}
+
 window.onload = () => {
-    carregarFuncionarios();
+    iniciarSeletores();
+    renderizarAniversariantesMes();
     renderizarPainelChefe();
+    configurarAbas();
 };
 
 const addBtn = document.getElementById('addBtn');
