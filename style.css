@@ -1,0 +1,166 @@
+/* --- Reset Básico --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333333;
+}
+
+/* --- Cabeçalho Padrão (Navbar) --- */
+.navbar-corporativa {
+    background-color: #000000;
+    color: #ffffff;
+    height: 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo-texto {
+    font-weight: bold;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.user-area {
+    font-size: 14px;
+    color: #cccccc;
+}
+
+.linha-vermelha {
+    background-color: #e11b22; /* Vermelho padrão corporativo */
+    height: 4px;
+    width: 100%;
+}
+
+/* --- Layout Principal --- */
+.main-container {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+.titulo-pagina {
+    margin-bottom: 25px;
+    border-bottom: 1px solid #dddddd;
+    padding-bottom: 15px;
+}
+
+.titulo-pagina h1 {
+    font-size: 28px;
+    color: #222222;
+    font-weight: 300;
+}
+
+.titulo-pagina p {
+    font-size: 14px;
+    color: #666666;
+    margin-top: 5px;
+}
+
+/* --- Formulario / Cards --- */
+.card-formulario {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.card-formulario h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333333;
+    font-weight: bold;
+}
+
+/* --- Campos de Entrada (Inputs e Selects) --- */
+.input-group-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.input-group-vertical label {
+    font-size: 13px;
+    font-weight: bold;
+    color: #555555;
+    margin-bottom: -5px;
+}
+
+.input-group-vertical select, 
+.input-group-vertical input[type="date"] {
+    width: 100%;
+    max-width: 400px;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    font-size: 14px;
+    outline: none;
+}
+
+.input-group-vertical select:focus, 
+.input-group-vertical input[type="date"]:focus {
+    border-color: #e11b22;
+}
+
+/* --- Botão Quadrado Padrão --- */
+#addBtn {
+    background-color: #e11b22;
+    color: #ffffff;
+    border: none;
+    height: 40px;
+    width: 100%;
+    max-width: 400px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+#addBtn:hover {
+    background-color: #b81419;
+}
+
+/* --- Estilização do Painel que o JS Cria --- */
+/* (Ajustando os elementos injetados pelo script.js) */
+#listaItens h3 {
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 15px;
+    margin-top: 25px;
+    background-color: #eaeaea;
+    border-left: 4px solid #e11b22; /* Detalhe vermelho na lateral do título */
+    color: #333333;
+}
+
+#listaItens ul {
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-top: none;
+    padding: 10px 20px;
+    list-style: none;
+}
+
+#listaItens li {
+    padding: 12px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #eeeeee;
+    color: #444444;
+}
+
+#listaItens li:last-child {
+    border-bottom: none;
+}
+
+#listaItens li strong {
+    color: #000000;
+}
