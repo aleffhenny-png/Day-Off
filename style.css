@@ -1,0 +1,349 @@
+/* Configurações Gerais de Estilo */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+/* ==================== TELA DE LOGIN (ESTILO GEOMÉTRICO CLEAN) ==================== */
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f3f4f6;
+    background-image: 
+        linear-gradient(30deg, #e5e7eb 12%, transparent 12.5%, transparent 87%, #e5e7eb 87.5%, #e5e7eb),
+        linear-gradient(150deg, #e5e7eb 12%, transparent 12.5%, transparent 87%, #e5e7eb 87.5%, #e5e7eb),
+        linear-gradient(30deg, #e5e7eb 12%, transparent 12.5%, transparent 87%, #e5e7eb 87.5%, #e5e7eb),
+        linear-gradient(150deg, #e5e7eb 12%, transparent 12.5%, transparent 87%, #e5e7eb 87.5%, #e5e7eb),
+        linear-gradient(60deg, #d1d5db 25%, transparent 25.5%, transparent 75%, #d1d5db 75%, #d1d5db),
+        linear-gradient(60deg, #d1d5db 25%, transparent 25.5%, transparent 75%, #d1d5db 75%, #d1d5db);
+    background-size: 80px 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.login-card {
+    background: white;
+    width: 400px;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    text-align: center;
+}
+
+.login-logo {
+    width: 90px;
+    margin-bottom: 12px;
+}
+
+.login-subtitulo {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #4b5563;
+    margin-bottom: 30px;
+    letter-spacing: 0.5px;
+}
+
+.login-body {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.login-body label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: -4px;
+}
+
+.login-body select, .login-body input {
+    height: 46px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 0 15px;
+    outline: none;
+    font-size: 14px;
+    background-color: #f9fafb;
+    transition: border-color 0.2s;
+}
+
+.login-body select:focus, .login-body input:focus {
+    border-color: #e11b22;
+    background-color: #fff;
+}
+
+#entrarBtn {
+    background-color: #e11b22;
+    color: white;
+    border: none;
+    height: 48px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.2s;
+}
+
+#entrarBtn:hover {
+    background-color: #b81419;
+}
+
+.msg-erro {
+    color: #ef4444;
+    font-size: 13px;
+    margin-top: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* ==================== ESTRUTURA PRINCIPAL DO PAINEL ==================== */
+.header {
+    background-color: #fff;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e5e7eb;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo {
+    height: 45px;
+}
+
+.header h1 {
+    font-size: 22px;
+    color: #111827;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.user-area {
+    background-color: #f3f4f6;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
+    padding: 25px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Cards das Ações */
+.sidebar-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card-acao {
+    background: #fff;
+    padding: 22px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+}
+
+.card-acao h3 {
+    font-size: 16px;
+    color: #1f2937;
+    margin-bottom: 6px;
+}
+
+.card-acao p {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.form-group select, .form-group input {
+    height: 38px;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    padding: 0 10px;
+    font-size: 13px;
+    outline: none;
+}
+
+.btn-primary {
+    width: 100%;
+    height: 40px;
+    background-color: #e11b22;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #b81419;
+}
+
+/* Caixa de Resultado de Pesquisa */
+.resultado-box {
+    margin-top: 15px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Lista de Aniversários */
+.aniversariantes-list {
+    max-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.niver-item {
+    display: flex;
+    justify-content: space-between;
+    background: #fff5f5;
+    border-left: 4px solid #e11b22;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+/* ==================== GRADE DO HEIJUNKA (DIREITA) ==================== */
+.dashboard-view {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-painel {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+    overflow: hidden;
+}
+
+.painel-header {
+    padding: 20px 25px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge-status {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.heijunka-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.heijunka-table th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    padding: 14px 20px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.heijunka-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.heijunka-table tr:hover {
+    background-color: #f8fafc;
+}
+
+.folga-marcada {
+    background-color: #ecfdf5;
+    color: #047857;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #a7f3d0;
+}
+
+.folga-vazia {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.btn-limpar {
+    background-color: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.btn-limpar:hover {
+    background-color: #e2e8f0;
+    color: #334155;
+}

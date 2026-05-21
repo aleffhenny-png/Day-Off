@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Day Off - Painel de Controle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <div class="login-header">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/3M_logo.svg" alt="Logo" class="login-logo">
+                <span class="login-subtitulo">Gestão Day Off</span>
+            </div>
+            
+            <div class="login-body">
+                <label>Supervisor:</label>
+                <select id="loginSupervisor">
+                    <option value="">Selecione seu nome...</option>
+                    <option value="Hellen Alexandre">Hellen Alexandre</option>
+                    <option value="Mariles Moraes">Mariles Moraes</option>
+                </select>
+
+                <label>Senha de Acesso:</label>
+                <input type="password" id="loginSenha" placeholder="Digite sua senha">
+
+                <button id="entrarBtn" onclick="realizarLogin()">Entrar no Painel</button>
+                <p id="erroLogin" class="msg-erro"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="appContent" style="display: none;">
+        <header class="header">
+            <div class="header-logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b0/3M_logo.svg" alt="Logo 3M" class="logo">
+                <div>
+                    <h1>Gestão de Day Off</h1>
+                    <p class="subtitle">Planejamento e Controle de Folgas</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <span class="user-area">Supervisor(a): Carregando...</span>
+            </div>
+        </header>
+
+        <main class="main-container">
+            <section class="sidebar-actions">
+                <div class="card-acao">
+                    <h3>📅 Agendar Day Off</h3>
+                    <p>Defina a data de folga do operador selecionado.</p>
+                    <div class="form-group">
+                        <label for="nomeFuncionario">Operador:</label>
+                        <select id="nomeFuncionario">
+                            <option value="">Selecione quem vai tirar folga...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dataDayOff">Data da Folga:</label>
+                        <input type="date" id="dataDayOff">
+                    </div>
+                    <button class="btn-primary" onclick="salvarDayOff()">Confirmar Agendamento</button>
+                </div>
+
+                <div class="card-acao">
+                    <h3>🔍 Consultar Cadastro</h3>
+                    <p>Verifique o status, setor e datas de um funcionário específico.</p>
+                    <div class="form-group">
+                        <label for="consultaFuncionario">Buscar Nome:</label>
+                        <select id="consultaFuncionario" onchange="consultarFuncionario()">
+                            <option value="">Selecione um nome...</option>
+                        </select>
+                    </div>
+                    <div id="resultadoConsulta" class="resultado-box" style="display: none;">
+                        </div>
+                </div>
+
+                <div class="card-acao card-aniversarios">
+                    <h3>🎉 Aniversariantes do Mês</h3>
+                    <div id="listaAniversariantes" class="aniversariantes-list">
+                        </div>
+                </div>
+            </section>
+
+            <section class="dashboard-view">
+                <div class="card-painel">
+                    <div class="painel-header">
+                        <h3>📋 Painel de Controle de Equipe</h3>
+                        <span class="badge-status">Visualização por Supervisor</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="heijunka-table">
+                            <thead>
+                                <tr>
+                                    <th>Operador</th>
+                                    <th>Setor/Área</th>
+                                    <th>Aniversário</th>
+                                    <th>Day Off Agendado</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaCorpo">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
