@@ -11,6 +11,29 @@ body {
     color: #333;
 }
 
+/* ==================== LOGO OFICIAL 3M (VIA CSS) ==================== */
+.logo-3m-oficial {
+    background-color: #e11b22; /* O vermelho oficial e vivo */
+    color: white;
+    font-family: 'Arial Black', Impact, sans-serif; /* Fonte pesada e marcante */
+    font-size: 32px; /* Letras imponentes */
+    font-weight: 900; /* Super negrito característico da marca */
+    width: 85px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: -3px; /* Junta o '3' e o 'M' exatamente igual ao logo real */
+    padding-right: 4px; /* Ajuste milimétrico do alinhamento */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave sob o bloco */
+    flex-shrink: 0;
+}
+
+/* Margem para a logo ficar bem distribuída na tela de login */
+.login-logo-margin {
+    margin-bottom: 20px;
+}
+
 /* ==================== TELA DE LOGIN ==================== */
 .login-overlay {
     position: fixed;
@@ -48,12 +71,6 @@ body {
     align-items: center;
     justify-content: center;
     margin-bottom: 25px;
-}
-
-.login-logo {
-    width: 75px;
-    height: auto;
-    margin-bottom: 8px;
 }
 
 .login-subtitulo {
@@ -134,10 +151,6 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
-}
-
-.logo {
-    height: 40px;
 }
 
 .header h1 {
