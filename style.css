@@ -11,7 +11,7 @@ body {
     color: #333;
 }
 
-/* ==================== TELA DE LOGIN (ESTILO GEOMÉTRICO CLEAN) ==================== */
+/* ==================== TELA DE LOGIN ==================== */
 .login-overlay {
     position: fixed;
     top: 0;
@@ -42,17 +42,25 @@ body {
     text-align: center;
 }
 
+.login-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
 .login-logo {
-    width: 90px;
-    margin-bottom: 12px;
+    width: 75px;
+    height: auto;
+    margin-bottom: 8px;
 }
 
 .login-subtitulo {
     display: block;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 700;
     color: #4b5563;
-    margin-bottom: 30px;
     letter-spacing: 0.5px;
 }
 
@@ -111,7 +119,7 @@ body {
     font-weight: 500;
 }
 
-/* ==================== ESTRUTURA PRINCIPAL DO PAINEL ==================== */
+/* ==================== ESTRUTURA HEADER E ABAS ==================== */
 .header {
     background-color: #fff;
     padding: 15px 30px;
@@ -129,17 +137,44 @@ body {
 }
 
 .logo {
-    height: 45px;
+    height: 40px;
 }
 
 .header h1 {
-    font-size: 22px;
+    font-size: 20px;
     color: #111827;
 }
 
 .subtitle {
     font-size: 12px;
     color: #6b7280;
+}
+
+/* Sistema de Alternar Abas */
+.nav-tabs {
+    display: flex;
+    gap: 10px;
+    background-color: #f3f4f6;
+    padding: 5px;
+    border-radius: 8px;
+}
+
+.tab-btn {
+    border: none;
+    background: transparent;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4b5563;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background-color: #fff;
+    color: #e11b22;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .user-area {
@@ -152,6 +187,16 @@ body {
     border: 1px solid #e5e7eb;
 }
 
+/* Controladores de exibição de conteúdo das abas */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active-content {
+    display: block;
+}
+
+/* ==================== ABA 1: CONTEÚDO PRINCIPAL (DASHBOARD) ==================== */
 .main-container {
     display: grid;
     grid-template-columns: 350px 1fr;
@@ -161,7 +206,6 @@ body {
     margin: 0 auto;
 }
 
-/* Cards das Ações */
 .sidebar-actions {
     display: flex;
     flex-direction: column;
@@ -227,7 +271,6 @@ body {
     background-color: #b81419;
 }
 
-/* Caixa de Resultado de Pesquisa */
 .resultado-box {
     margin-top: 15px;
     background-color: #f9fafb;
@@ -238,7 +281,6 @@ body {
     line-height: 1.5;
 }
 
-/* Lista de Aniversários */
 .aniversariantes-list {
     max-height: 220px;
     overflow-y: auto;
@@ -258,7 +300,6 @@ body {
     font-weight: 500;
 }
 
-/* ==================== GRADE DO HEIJUNKA (DIREITA) ==================== */
 .dashboard-view {
     display: flex;
     flex-direction: column;
@@ -346,4 +387,103 @@ body {
 .btn-limpar:hover {
     background-color: #e2e8f0;
     color: #334155;
+}
+
+/* ==================== ABA 2: VISÃO GRADE CALENDÁRIO (12 MESES) ==================== */
+.calendario-container {
+    padding: 30px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.calendario-header {
+    margin-bottom: 25px;
+}
+
+.calendario-header h2 {
+    font-size: 22px;
+    color: #111827;
+}
+
+.calendario-header p {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* Sistema Grid dos Quadrados */
+.grade-meses {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* 4 quadrados por linha */
+    gap: 20px;
+}
+
+/* Card Individual de cada Mês */
+.mes-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.01);
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Cabeçalho do quadrado do Mês */
+.mes-titulo {
+    background-color: #e11b22; /* Vermelho Padrão */
+    color: white;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 700;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Corpo do quadrado do Mês */
+.mes-conteudo {
+    padding: 12px;
+    overflow-y: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Item de aniversário dentro do quadrado */
+.mes-niver-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 6px 8px;
+    background-color: #f9fafb;
+    border-radius: 4px;
+    border-left: 3px solid #cbd5e1;
+    color: #374151;
+}
+
+.mes-niver-item.hoje {
+    background-color: #fff5f5;
+    border-left-color: #e11b22;
+    font-weight: 600;
+}
+
+.mes-vazio {
+    font-size: 11px;
+    color: #94a3b8;
+    text-align: center;
+    margin: auto 0;
+    font-style: italic;
+}
+
+/* Responsividade para telas menores */
+@media (max-width: 1200px) {
+    .grade-meses { grid-template-columns: repeat(3, 1fr); } /* 3 colunas */
+}
+@media (max-width: 900px) {
+    .grade-meses { grid-template-columns: repeat(2, 1fr); } /* 2 colunas */
+}
+@media (max-width: 600px) {
+    .grade-meses { grid-template-columns: 1fr; } /* 1 coluna */
 }

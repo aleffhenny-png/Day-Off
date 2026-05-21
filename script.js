@@ -106,7 +106,6 @@ function realizarLogin() {
         return;
     }
 
-    // Senha padrão combinada de teste: 123
     if (senha === "123") {
         supervisorLogado = nome;
         document.getElementById('loginOverlay').style.display = "none";
@@ -120,21 +119,31 @@ function realizarLogin() {
     }
 }
 
-// Retorna apenas a lista dos subordinados de quem fez o login
 function obterSubordinadosFiltrados() {
     return dadosFuncionarios.filter(f => f.supervisor === supervisorLogado);
 }
 
-// Atualiza todas as visualizações do app com base no filtro
 function atualizarPainelCompleto() {
     const listaFiltrada = obterSubordinadosFiltrados();
     
     popularSeletores(listaFiltrada);
     renderizarPainelHeijunka(listaFiltrada);
-    renderizarAniversariantes(listaFiltrada);
+    renderizarDestaqueMes(listaFiltrada);
+    renderizarCalendarioCompleto(listaFiltrada); // Nova função que alimenta os 12 quadrados
 }
 
-// ==================== 3. LÓGICA DO DASHBOARD ====================
+// Lógica de Alternar Abas (Tabs)
+function alternarAba(idAba) {
+    // Gerenciar estado dos botões
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    // Gerenciar visibilidade dos blocos
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
+    document.getElementById(`aba-${idAba}`).classList.add('active-content');
+}
+
+// ==================== 3. LÓGICA DO DASHBOARD INDIVIDUAL ====================
 
 function popularSeletores(lista) {
     const selectAdd = document.getElementById('nomeFuncionario');
@@ -143,7 +152,6 @@ function popularSeletores(lista) {
     selectAdd.innerHTML = '<option value="">Selecione quem vai tirar folga...</option>';
     selectCheck.innerHTML = '<option value="">Selecione um nome...</option>';
 
-    // Ordena em ordem alfabética para o dropdown
     const ordenados = [...lista].sort((a, b) => a.nome.localeCompare(b.nome));
 
     ordenados.forEach(u => {
@@ -171,14 +179,12 @@ function renderizarPainelHeijunka(lista) {
     lista.forEach(func => {
         const tr = document.createElement('tr');
         
-        // Formatar aniversário para exibição amigável (DD/MM)
         let niverFormatado = "---";
         if(func.aniversario) {
             const partes = func.aniversario.split('-');
             niverFormatado = partes.length === 3 ? `${partes[2]}/${partes[1]}` : func.aniversario;
         }
 
-        // Formatar Day Off
         let dayOffFormatado = `<span class="folga-vazia">Não definida</span>`;
         if(func.dayOff) {
             const partes = func.dayOff.split('-');
@@ -198,29 +204,25 @@ function renderizarPainelHeijunka(lista) {
     });
 }
 
-function renderizarAniversariantes(lista) {
+// Mini lista lateral: Destaque do Mês Atual
+function renderizarDestaqueMes(lista) {
     const container = document.getElementById('listaAniversariantes');
     container.innerHTML = "";
 
-    const mesAtual = new Date().getMonth() + 1; // Janeiro = 1, Fevereiro = 2...
+    const mesAtual = new Date().getMonth() + 1;
 
     const aniversariantesDoMes = lista.filter(func => {
         if (!func.aniversario) return false;
         const partes = func.aniversario.split('-');
-        if (partes.length === 3) {
-            return parseInt(partes[1], 10) === mesAtual;
-        }
-        return false;
+        return partes.length === 3 ? parseInt(partes[1], 10) === mesAtual : false;
     });
 
     if (aniversariantesDoMes.length === 0) {
-        container.innerHTML = `<p style="font-size: 12px; color:#888; text-align:center;">Nenhum aniversário em ${nomesMeses[mesAtual-1]}.</p>`;
+        container.innerHTML = `<p style="font-size: 11px; color:#888; text-align:center;">Nenhum aniversário em ${nomesMeses[mesAtual-1]}.</p>`;
         return;
     }
 
-    aniversariantesDoMes.sort((a,b) => {
-        return parseInt(a.aniversario.split('-')[2]) - parseInt(b.aniversario.split('-')[2]);
-    });
+    aniversariantesDoMes.sort((a,b) => parseInt(a.aniversario.split('-')[2]) - parseInt(b.aniversario.split('-')[2]));
 
     aniversariantesDoMes.forEach(func => {
         const partes = func.aniversario.split('-');
@@ -231,6 +233,66 @@ function renderizarAniversariantes(lista) {
     });
 }
 
+// ==================== 4. NOVA LÓGICA: GRADE CALENDÁRIO ANUAL COMPLETO ====================
+function renderizarCalendarioCompleto(lista) {
+    const grade = document.getElementById('gradeMeses');
+    grade.innerHTML = ""; // Limpa a grade antiga
+
+    const mesAtualSistema = new Date().getMonth() + 1;
+
+    // Gerar a caixinha de cada um dos 12 meses
+    for (let m = 1; m <= 12; m++) {
+        const mesCard = document.createElement('div');
+        mesCard.className = "mes-card";
+
+        // Nome do mês no topo do quadrado
+        const titulo = document.createElement('div');
+        titulo.className = "mes-titulo";
+        titulo.textContent = nomesMeses[m - 1].toUpperCase();
+        // Pequeno destaque se for o mês corrente
+        if(m === mesAtualSistema) {
+            titulo.style.backgroundColor = "#9b0f14"; 
+            titulo.textContent += " (ESTE MÊS)";
+        }
+        mesCard.appendChild(titulo);
+
+        // Espaço onde entram os nomes
+        const conteudo = document.createElement('div');
+        conteudo.className = "mes-conteudo";
+
+        // Filtrar operadores que fazem aniversário neste mês 'm'
+        const nascidosNoMes = lista.filter(func => {
+            if (!func.aniversario) return false;
+            const partes = func.aniversario.split('-');
+            return partes.length === 3 ? parseInt(partes[1], 10) === m : false;
+        });
+
+        if (nascidosNoMes.length === 0) {
+            conteudo.innerHTML = `<span class="mes-vazio">Nenhum aniversariante</span>`;
+        } else {
+            // Ordenar por dia do mês
+            nascidosNoMes.sort((a,b) => parseInt(a.aniversario.split('-')[2]) - parseInt(b.aniversario.split('-')[2]));
+
+            nascidosNoMes.forEach(func => {
+                const dia = func.aniversario.split('-')[2];
+                const itemNiver = document.createElement('div');
+                // Se for o mês atual, ganha uma classe estilizada diferente
+                itemNiver.className = `mes-niver-item ${m === mesAtualSistema ? 'hoje' : ''}`;
+                
+                // Abrevia o nome muito longo para não quebrar o quadrado do calendário
+                const nomeCurto = func.nome.split(' ').slice(0, 2).join(' ');
+
+                itemNiver.innerHTML = `<span>👤 ${nomeCurto}</span> <strong>Dia ${dia}</strong>`;
+                conteudo.appendChild(itemNiver);
+            });
+        }
+
+        mesCard.appendChild(conteudo);
+        grade.appendChild(mesCard);
+    }
+}
+
+// ==================== 5. OUTRAS AÇÕES DE MANIPULAÇÃO ====================
 function salvarDayOff() {
     const nome = document.getElementById('nomeFuncionario').value;
     const data = document.getElementById('dataDayOff').value;
@@ -249,6 +311,7 @@ function salvarDayOff() {
     }
 }
 
+// Remover Day Off
 function removerDayOff(nome) {
     if(confirm(`Deseja remover o Day Off de ${nome}?`)) {
         const funcionario = dadosFuncionarios.find(f => f.nome === nome);
@@ -259,6 +322,7 @@ function removerDayOff(nome) {
     }
 }
 
+// Consultar Individual
 function consultarFuncionario() {
     const nome = document.getElementById('consultaFuncionario').value;
     const box = document.getElementById('resultadoConsulta');
