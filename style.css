@@ -335,14 +335,15 @@ body {
     overflow-x: auto;
 }
 
-.heijunka-table {
+/* ==================== SEÇÃO DA TABELA CORRIGIDA ==================== */
+.dayoff-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
     font-size: 13px;
 }
 
-.heijunka-table th {
+.dayoff-table th {
     background-color: #f8fafc;
     color: #475569;
     font-weight: 600;
@@ -350,13 +351,13 @@ body {
     border-bottom: 2px solid #e2e8f0;
 }
 
-.heijunka-table td {
+.dayoff-table td {
     padding: 12px 20px;
     border-bottom: 1px solid #f1f5f9;
     color: #334155;
 }
 
-.heijunka-table tr:hover {
+.dayoff-table tr:hover {
     background-color: #f8fafc;
 }
 
@@ -479,11 +480,11 @@ body {
 
 /* Responsividade para telas menores */
 @media (max-width: 1200px) {
-    .grade-meses { grid-template-columns: repeat(3, 1fr); } /* 3 colunas */
+    .grade-meses { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 900px) {
-    .grade-meses { grid-template-columns: repeat(2, 1fr); } /* 2 colunas */
+    .grade-meses { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 600px) {
-    .grade-meses { grid-template-columns: 1fr; } /* 1 coluna */
+    .grade-meses { grid-template-columns: 1fr; }
 }
