@@ -95,6 +95,13 @@ let supervisorLogado = "";
 
 const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
+// ==================== OBJETO DE SENHAS ÚNICAS ====================
+// Altere os valores das propriedades abaixo para definir as senhas de cada uma!
+const senhasSupervisores = {
+    "Hellen Alexandre": "hellen789",
+    "Mariles Moraes": "mariles456"
+};
+
 // ==================== 2. SISTEMA DE LOGIN ====================
 function realizarLogin() {
     const nome = document.getElementById('loginSupervisor').value;
@@ -106,7 +113,11 @@ function realizarLogin() {
         return;
     }
 
-    if (senha === "123") {
+    // Busca a senha definida para o supervisor selecionado
+    const senhaCorreta = senhasSupervisores[nome];
+
+    // Compara se a senha digitada bate com a cadastrada
+    if (senha === senhaCorreta) {
         supervisorLogado = nome;
         document.getElementById('loginOverlay').style.display = "none";
         document.getElementById('appContent').style.display = "block";
@@ -138,7 +149,7 @@ function alternarAba(idAba) {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.currentTarget.classList.add('active');
 
-    // Gerenciar visibilidade dos blocos
+    // Gerenciar visibilidade dos blocks
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
     document.getElementById(`aba-${idAba}`).classList.add('active-content');
 }
