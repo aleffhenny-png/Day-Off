@@ -96,7 +96,6 @@ let supervisorLogado = "";
 const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
 // ==================== OBJETO DE SENHAS ÚNICAS ====================
-// Altere os valores das propriedades abaixo para definir as senhas de cada uma!
 const senhasSupervisores = {
     "Hellen Alexandre": "hellen789",
     "Mariles Moraes": "mariles456"
@@ -113,10 +112,8 @@ function realizarLogin() {
         return;
     }
 
-    // Busca a senha definida para o supervisor selecionado
     const senhaCorreta = senhasSupervisores[nome];
 
-    // Compara se a senha digitada bate com a cadastrada
     if (senha === senhaCorreta) {
         supervisorLogado = nome;
         document.getElementById('loginOverlay').style.display = "none";
@@ -140,22 +137,19 @@ function atualizarPainelCompleto() {
     popularSeletores(listaFiltrada);
     renderizarPainelHeijunka(listaFiltrada);
     renderizarDestaqueMes(listaFiltrada);
-    renderizarCalendarioCompleto(listaFiltrada); // Nova função que alimenta os 12 quadrados
+    renderizarCalendarioCompleto(listaFiltrada);
 }
 
 // Lógica de Alternar Abas (Tabs)
 function alternarAba(idAba) {
-    // Gerenciar estado dos botões
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.currentTarget.classList.add('active');
 
-    // Gerenciar visibilidade dos blocks
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
     document.getElementById(`aba-${idAba}`).classList.add('active-content');
 }
 
 // ==================== 3. LÓGICA DO DASHBOARD INDIVIDUAL ====================
-
 function popularSeletores(lista) {
     const selectAdd = document.getElementById('nomeFuncionario');
     const selectCheck = document.getElementById('consultaFuncionario');
@@ -215,7 +209,6 @@ function renderizarPainelHeijunka(lista) {
     });
 }
 
-// Mini lista lateral: Destaque do Mês Atual
 function renderizarDestaqueMes(lista) {
     const container = document.getElementById('listaAniversariantes');
     container.innerHTML = "";
@@ -244,34 +237,30 @@ function renderizarDestaqueMes(lista) {
     });
 }
 
-// ==================== 4. NOVA LÓGICA: GRADE CALENDÁRIO ANUAL COMPLETO ====================
+// ==================== 4. GRADE CALENDÁRIO ANUAL COMPLETO ====================
 function renderizarCalendarioCompleto(lista) {
     const grade = document.getElementById('gradeMeses');
-    grade.innerHTML = ""; // Limpa a grade antiga
+    grade.innerHTML = "";
 
     const mesAtualSistema = new Date().getMonth() + 1;
 
-    // Gerar a caixinha de cada um dos 12 meses
     for (let m = 1; m <= 12; m++) {
         const mesCard = document.createElement('div');
         mesCard.className = "mes-card";
 
-        // Nome do mês no topo do quadrado
         const titulo = document.createElement('div');
         titulo.className = "mes-titulo";
         titulo.textContent = nomesMeses[m - 1].toUpperCase();
-        // Pequeno destaque se for o mês corrente
+        
         if(m === mesAtualSistema) {
             titulo.style.backgroundColor = "#9b0f14"; 
             titulo.textContent += " (ESTE MÊS)";
         }
         mesCard.appendChild(titulo);
 
-        // Espaço onde entram os nomes
         const conteudo = document.createElement('div');
         conteudo.className = "mes-conteudo";
 
-        // Filtrar operadores que fazem aniversário neste mês 'm'
         const nascidosNoMes = lista.filter(func => {
             if (!func.aniversario) return false;
             const partes = func.aniversario.split('-');
@@ -281,16 +270,13 @@ function renderizarCalendarioCompleto(lista) {
         if (nascidosNoMes.length === 0) {
             conteudo.innerHTML = `<span class="mes-vazio">Nenhum aniversariante</span>`;
         } else {
-            // Ordenar por dia do mês
             nascidosNoMes.sort((a,b) => parseInt(a.aniversario.split('-')[2]) - parseInt(b.aniversario.split('-')[2]));
 
             nascidosNoMes.forEach(func => {
                 const dia = func.aniversario.split('-')[2];
                 const itemNiver = document.createElement('div');
-                // Se for o mês atual, ganha uma classe estilizada diferente
                 itemNiver.className = `mes-niver-item ${m === mesAtualSistema ? 'hoje' : ''}`;
                 
-                // Abrevia o nome muito longo para não quebrar o quadrado do calendário
                 const nomeCurto = func.nome.split(' ').slice(0, 2).join(' ');
 
                 itemNiver.innerHTML = `<span>👤 ${nomeCurto}</span> <strong>Dia ${dia}</strong>`;
@@ -303,7 +289,7 @@ function renderizarCalendarioCompleto(lista) {
     }
 }
 
-// ==================== 5. OUTRAS AÇÕES DE MANIPULAÇÃO ====================
+// ==================== 5. OUTRAS AÇÕES DE MANIPULAÇÃO + AUTOMATE ====================
 function salvarDayOff() {
     const nome = document.getElementById('nomeFuncionario').value;
     const data = document.getElementById('dataDayOff').value;
@@ -315,10 +301,39 @@ function salvarDayOff() {
 
     const funcionario = dadosFuncionarios.find(f => f.nome === nome);
     if (funcionario) {
+        // 1. Atualiza localmente os dados na tela
         funcionario.dayOff = data;
         alert(`Day Off de ${funcionario.nome} salvo!`);
         document.getElementById('dataDayOff').value = "";
         atualizarPainelCompleto();
+
+        // 2. DISPARO AUTOMÁTICO PARA O MICROSOFT TEAMS VIA WEBHOOK
+        const dataFormatada = data.split('-').reverse().join('/');
+
+        const dadosParaTeams = {
+            operador: funcionario.nome,
+            data: dataFormatada,
+            supervisor: supervisorLogado
+        };
+
+        // URL Oficial gerada pelo Power Automate do ambiente corporativo
+        const urlPowerAutomate = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9987a5cac43847669686c90142f25cf6/triggers/manual/paths/invoke?api-version=1";
+
+        fetch(urlPowerAutomate, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dadosParaTeams)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Notificação enviada ao canal do Teams com sucesso!");
+            } else {
+                console.error("Falha ao disparar mensagem para o Automate.");
+            }
+        })
+        .catch(error => console.error("Erro na comunicação com o Teams:", error));
     }
 }
 
