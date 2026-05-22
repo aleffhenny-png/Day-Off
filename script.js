@@ -317,7 +317,7 @@ function salvarDayOff() {
         };
 
         // URL Oficial gerada pelo Power Automate do ambiente corporativo
-        const urlPowerAutomate = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9987a5cac43847669686c90142f25cf6/triggers/manual/paths/invoke?api-version=1";
+        const urlPowerAutomate = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9987a5cac43847669686c90142f25cf6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6LkdxGB_t7LN7T6IeqJv0ziM03d_6Gqix8h8Y70t_e8";
 
         fetch(urlPowerAutomate, {
             method: "POST",
