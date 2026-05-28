@@ -32,7 +32,7 @@ const dadosFuncionarios = [
     { nome: "FRANCINETH DE SOUZA", area: "FALL", aniversario: "1963-10-18", dayOff: "", supervisor: "Mariles Moraes" },
     { nome: "FRANCISCO HECTOR PANTOJA MESQUITA", area: "INJETORAS", aniversario: "2002-01-27", dayOff: "", supervisor: "Hellen Alexandre" },
     { nome: "GABRIELA DE MELO RIOS", area: "FRIPACK", aniversario: "1997-08-08", dayOff: "", supervisor: "Hellen Alexandre" },
-    { nome: "GENY COLARES", area: "BANCADA MANUAL", aniversario: "1976-12-30", dayOff: "", supervisor: "Hellen Alexandre" },
+    { nome: "GENY COLARES", area: "BANCADA MANUAL", aniversario: "1976-12-30", dayOff: "2026-05-28", supervisor: "Hellen Alexandre" },
     { nome: "GLORIA LOPES DE SOUZA", area: "LABEL MACHINE", aniversario: "2003-05-31", dayOff: "", supervisor: "Hellen Alexandre" },
     { nome: "GUILHERME ROGERIO DA SILVA LIMA", area: "C#2", aniversario: "2000-11-15", dayOff: "", supervisor: "Hellen Alexandre" },
     { nome: "HELENA KELLY RAMOS DE OLIVEIRA", area: "RESPIRADOR", aniversario: "1976-12-18", dayOff: "", supervisor: "Mariles Moraes" },
@@ -142,30 +142,53 @@ async function carregarAgendamentosDoSharePoint() {
 
         if (!response.ok) throw new Error(`Status Erro: ${response.status}`);
 
-        const registrosNuvem = await response.json();
-        console.log("Registros recebidos:", registrosNuvem);
+        let dadosRecebidos = await response.json();
+        console.log("Dados recebidos da lista:", dadosRecebidos);
 
-        // Limpa os agendamentos antigos da memória local antes de mapear
+        // Garante que estamos lidando com uma lista de registros
+        let listaRegistros = [];
+        if (Array.isArray(dadosRecebidos)) {
+            listaRegistros = dadosRecebidos;
+        } else if (dadosRecebidos && Array.isArray(dadosRecebidos.value)) {
+            listaRegistros = dadosRecebidos.value;
+        } else if (dadosRecebidos && Array.isArray(dadosRecebidos.resultado)) {
+            listaRegistros = dadosRecebidos.resultado;
+        }
+
+        // Limpa os agendamentos locais antigos antes de aplicar os dados do SharePoint
         dadosFuncionarios.forEach(f => f.dayOff = "");
 
-        // Associa os registros retornados do SharePoint à nossa lista local
-        registrosNuvem.forEach(item => {
-            if (item.Title && item.DataFolga) {
-                const nomeSharePoint = item.Title.trim().toUpperCase();
+        // Varre a lista vinda do SharePoint mapeando as colunas corretas (Operador e DataFolga)
+        listaRegistros.forEach(item => {
+            // Compara usando a coluna 'Operador' da imagem ou 'Title' caso varie internamente
+            const nomeSharePoint = (item.Operador || item.operador || item.Title || item.title || "").toString().trim().toUpperCase();
+            let dataFolgaRaw = item.DataFolga || item.dataFolga || item.Data || item.data || "";
+
+            if (nomeSharePoint && dataFolgaRaw) {
+                // Se a data vier com o padrão brasileiro (DD/MM/AAAA) do SharePoint, converte para o formato HTML (AAAA-MM-DD)
+                let dataConfigurada = dataFolgaRaw;
+                if (dataFolgaRaw.includes('/')) {
+                    const partesData = dataFolgaRaw.split(' ')[0].split('/'); 
+                    if (partesData.length === 3) {
+                        dataConfigurada = `${partesData[2]}-${partesData[1]}-${partesData[0]}`; 
+                    }
+                }
+
+                // Vincula o registro ao operador correspondente na nossa lista estruturada
                 const funcLocal = dadosFuncionarios.find(f => f.nome.trim().toUpperCase() === nomeSharePoint);
                 if (funcLocal) {
-                    funcLocal.dayOff = item.DataFolga; // Injeta a data da nuvem no objeto do funcionário
+                    funcLocal.dayOff = dataConfigurada; 
+                    console.log(`Sucesso: ${funcLocal.nome} atualizado com a data ${dataConfigurada}`);
                 }
             }
         });
 
-        // Atualiza a tela com as informações gravadas na nuvem
+        // Atualiza a interface com todas as novidades sincronizadas
         atualizarPainelCompleto();
 
     } catch (error) {
-        console.error("Erro ao sincronizar com o SharePoint:", error);
-        // Mesmo se a nuvem falhar, monta a estrutura básica para não quebrar a tela
-        atualizarPainelCompleto();
+        console.error("Erro ao sincronizar dados do SharePoint:", error);
+        atualizarPainelCompleto(); // Não quebra a interface se a rede falhar
     }
 }
 
@@ -196,6 +219,8 @@ function popularSeletores(lista) {
     const selectAdd = document.getElementById('nomeFuncionario');
     const selectCheck = document.getElementById('consultaFuncionario');
     
+    if (!selectAdd || !selectCheck) return;
+
     selectAdd.innerHTML = '<option value="">Selecione quem vai tirar folga...</option>';
     selectCheck.innerHTML = '<option value="">Selecione um nome...</option>';
 
@@ -356,7 +381,7 @@ function salvarDayOff() {
             supervisor: supervisorLogado
         };
 
-        // Disparo para o webhook do Power Automate para gravar no SharePoint e alertar no Teams
+        // Envia para o webhook do Power Automate
         fetch(urlSalvarDayOff, {
             method: "POST",
             headers: {
