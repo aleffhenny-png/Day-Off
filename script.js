@@ -206,23 +206,30 @@ async function carregarAgendamentosDoSharePoint() {
             listaRegistros = dadosRecebidos.resultado;
         }
 
+        // Reseta as folgas locais antes de mapear
         dadosFuncionarios.forEach(f => f.dayOff = "");
 
         listaRegistros.forEach(item => {
+            // Mapeia corretamente aceitando a coluna 'Operador'
             const nomeSharePoint = (item.Operador || item.operador || item.Title || item.title || "").toString().trim().toUpperCase();
             let dataFolgaRaw = item.DataFolga || item.dataFolga || item.Data || item.data || "";
 
             if (nomeSharePoint && dataFolgaRaw) {
-                let dataConfigurada = dataFolgaRaw;
+                let dataConfigurada = "";
+
+                // TRATAMENTO DINÂMICO E ROBUSTO DE DATA (Aceita DD/MM/AAAA ou AAAA-MM-DD)
                 if (dataFolgaRaw.includes('/')) {
-                    const partesData = dataFolgaRaw.split(' ')[0].split('/'); 
+                    const apenasData = dataFolgaRaw.split(' ')[0];
+                    const partesData = apenasData.split('/'); 
                     if (partesData.length === 3) {
-                        dataConfigurada = `${partesData[2]}-${partesData[1]}-${partesData[0]}`; 
+                        dataConfigurada = `${partesData[2]}-${partesData[1].padStart(2, '0')}-${partesData[0].padStart(2, '0')}`; 
                     }
+                } else if (dataFolgaRaw.includes('-')) {
+                    dataConfigurada = dataFolgaRaw.split('T')[0];
                 }
 
                 const funcLocal = dadosFuncionarios.find(f => f.nome.trim().toUpperCase() === nomeSharePoint);
-                if (funcLocal) {
+                if (funcLocal && dataConfigurada) {
                     funcLocal.dayOff = dataConfigurada; 
                     console.log(`Sucesso: ${funcLocal.nome} atualizado com a data ${dataConfigurada}`);
                 }
