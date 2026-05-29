@@ -95,6 +95,7 @@ let supervisorLogado = "";
 const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
 // ==================== LINKS DO POWER AUTOMATE ====================
+// URL Corrigida e atualizada para o novo gatilho HTTP Manual:
 const urlSalvarDayOff = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9987a5cac43847669686c90142f25cf6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6LkdxGB_t7LN7T6IeqJv0ziM03d_6Gqix8h8Y70t_e8";
 const urlBuscarDayOff = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3513294dc1ff4436936e43e79d47844e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SMt5w4FHSIYWnWYv-ahuIHBVUxniBzjBZFjGMdWLSy8";
 
@@ -142,8 +143,34 @@ async function carregarAgendamentosDoSharePoint() {
 
         if (!response.ok) throw new Error(`Status Erro: ${response.status}`);
 
-        let dadosRecebidos = await response.json();
-        console.log("Dados recebidos da lista:", dadosRecebidos);
+        // Pega o retorno como texto para isolar o primeiro JSON válido (Evita quebras por duplicação do Automate)
+        const textoBruto = await response.text();
+        
+        let textoLimpo = textoBruto.trim();
+        let posicaoFechamento = -1;
+        let contadorEstrutura = 0;
+        let caractereAbertura = textoLimpo.trim()[0];
+        let caractereFechamento = caractereAbertura === '[' ? ']' : '}';
+
+        // Encontra o fim exato do primeiro bloco JSON legítimo
+        for (let i = 0; i < textoLimpo.length; i++) {
+            if (textoLimpo[i] === caractereAbertura) {
+                contadorEstrutura++;
+            } else if (textoLimpo[i] === caractereFechamento) {
+                contadorEstrutura--;
+                if (contadorEstrutura === 0) {
+                    posicaoFechamento = i;
+                    break;
+                }
+            }
+        }
+
+        if (posicaoFechamento !== -1) {
+            textoLimpo = textoLimpo.substring(0, posicaoFechamento + 1);
+        }
+
+        let dadosRecebidos = JSON.parse(textoLimpo);
+        console.log("Dados recebidos da lista (Filtrados):", dadosRecebidos);
 
         // Garante que estamos lidando com uma lista de registros
         let listaRegistros = [];
@@ -160,12 +187,10 @@ async function carregarAgendamentosDoSharePoint() {
 
         // Varre a lista vinda do SharePoint mapeando as colunas corretas (Operador e DataFolga)
         listaRegistros.forEach(item => {
-            // Compara usando a coluna 'Operador' da imagem ou 'Title' caso varie internamente
             const nomeSharePoint = (item.Operador || item.operador || item.Title || item.title || "").toString().trim().toUpperCase();
             let dataFolgaRaw = item.DataFolga || item.dataFolga || item.Data || item.data || "";
 
             if (nomeSharePoint && dataFolgaRaw) {
-                // Se a data vier com o padrão brasileiro (DD/MM/AAAA) do SharePoint, converte para o formato HTML (AAAA-MM-DD)
                 let dataConfigurada = dataFolgaRaw;
                 if (dataFolgaRaw.includes('/')) {
                     const partesData = dataFolgaRaw.split(' ')[0].split('/'); 
@@ -188,11 +213,11 @@ async function carregarAgendamentosDoSharePoint() {
 
     } catch (error) {
         console.error("Erro ao sincronizar dados do SharePoint:", error);
-        atualizarPainelCompleto(); // Não quebra a interface se a rede falhar
+        atualizarPainelCompleto(); 
     }
 }
 
-function obterSubordinadosFiltrados() {
+function obtenerSubordinadosFiltrados() {
     return dadosFuncionarios.filter(f => f.supervisor === supervisorLogado);
 }
 
@@ -381,7 +406,7 @@ function salvarDayOff() {
             supervisor: supervisorLogado
         };
 
-        // Envia para o webhook do Power Automate
+        // Envia para o webhook do Power Automate usando a URL corrigida
         fetch(urlSalvarDayOff, {
             method: "POST",
             headers: {
