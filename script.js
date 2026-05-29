@@ -95,7 +95,6 @@ let supervisorLogado = "";
 const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 
 // ==================== LINKS DO POWER AUTOMATE ====================
-// URL Corrigida e atualizada para o novo gatilho HTTP Manual:
 const urlSalvarDayOff = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/9987a5cac43847669686c90142f25cf6/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=6LkdxGB_t7LN7T6IeqJv0ziM03d_6Gqix8h8Y70t_e8";
 const urlBuscarDayOff = "https://defaultfacac3c4e2a54257af76205c8a821d.db.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/3513294dc1ff4436936e43e79d47844e/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=SMt5w4FHSIYWnWYv-ahuIHBVUxniBzjBZFjGMdWLSy8";
 
@@ -105,7 +104,36 @@ const senhasSupervisores = {
     "Mariles Moraes": "mariles456"
 };
 
-// ==================== 2. SISTEMA DE LOGIN ==================== 
+// Mapeamento de e-mails para o Power Automate usar na @menção correta
+const emailsSupervisores = {
+    "Hellen Alexandre": "halexandredeoliveira@mmm.com",
+    "Mariles Moraes": "mariles.moraes@mmm.com"
+};
+
+// ==================== FUNÇÕES UTILITÁRIAS DO PAINEL ====================
+function obterSubordinadosFiltrados() {
+    return dadosFuncionarios.filter(f => f.supervisor === supervisorLogado);
+}
+
+function atualizarPainelCompleto() {
+    const listaFiltrada = obterSubordinadosFiltrados();
+    
+    popularSeletores(listaFiltrada);
+    renderizarPainelHeijunka(listaFiltrada);
+    renderizarDestaqueMes(listaFiltrada);
+    renderizarCalendarioCompleto(listaFiltrada);
+}
+
+// Lógica de Alternar Abas (Tabs)
+function alternarAba(idAba) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
+    document.getElementById(`aba-${idAba}`).classList.add('active-content');
+}
+
+// ==================== SISTEMA DE LOGIN ==================== 
 function realizarLogin() {
     const nome = document.getElementById('loginSupervisor').value;
     const senha = document.getElementById('loginSenha').value;
@@ -143,16 +171,13 @@ async function carregarAgendamentosDoSharePoint() {
 
         if (!response.ok) throw new Error(`Status Erro: ${response.status}`);
 
-        // Pega o retorno como texto para isolar o primeiro JSON válido (Evita quebras por duplicação do Automate)
         const textoBruto = await response.text();
-        
         let textoLimpo = textoBruto.trim();
         let posicaoFechamento = -1;
         let contadorEstrutura = 0;
         let caractereAbertura = textoLimpo.trim()[0];
         let caractereFechamento = caractereAbertura === '[' ? ']' : '}';
 
-        // Encontra o fim exato do primeiro bloco JSON legítimo
         for (let i = 0; i < textoLimpo.length; i++) {
             if (textoLimpo[i] === caractereAbertura) {
                 contadorEstrutura++;
@@ -172,7 +197,6 @@ async function carregarAgendamentosDoSharePoint() {
         let dadosRecebidos = JSON.parse(textoLimpo);
         console.log("Dados recebidos da lista (Filtrados):", dadosRecebidos);
 
-        // Garante que estamos lidando com uma lista de registros
         let listaRegistros = [];
         if (Array.isArray(dadosRecebidos)) {
             listaRegistros = dadosRecebidos;
@@ -182,10 +206,8 @@ async function carregarAgendamentosDoSharePoint() {
             listaRegistros = dadosRecebidos.resultado;
         }
 
-        // Limpa os agendamentos locais antigos antes de aplicar os dados do SharePoint
         dadosFuncionarios.forEach(f => f.dayOff = "");
 
-        // Varre a lista vinda do SharePoint mapeando as colunas corretas (Operador e DataFolga)
         listaRegistros.forEach(item => {
             const nomeSharePoint = (item.Operador || item.operador || item.Title || item.title || "").toString().trim().toUpperCase();
             let dataFolgaRaw = item.DataFolga || item.dataFolga || item.Data || item.data || "";
@@ -199,7 +221,6 @@ async function carregarAgendamentosDoSharePoint() {
                     }
                 }
 
-                // Vincula o registro ao operador correspondente na nossa lista estruturada
                 const funcLocal = dadosFuncionarios.find(f => f.nome.trim().toUpperCase() === nomeSharePoint);
                 if (funcLocal) {
                     funcLocal.dayOff = dataConfigurada; 
@@ -208,7 +229,6 @@ async function carregarAgendamentosDoSharePoint() {
             }
         });
 
-        // Atualiza a interface com todas as novidades sincronizadas
         atualizarPainelCompleto();
 
     } catch (error) {
@@ -217,29 +237,7 @@ async function carregarAgendamentosDoSharePoint() {
     }
 }
 
-function obtenerSubordinadosFiltrados() {
-    return dadosFuncionarios.filter(f => f.supervisor === supervisorLogado);
-}
-
-function atualizarPainelCompleto() {
-    const listaFiltrada = obterSubordinadosFiltrados();
-    
-    popularSeletores(listaFiltrada);
-    renderizarPainelHeijunka(listaFiltrada);
-    renderizarDestaqueMes(listaFiltrada);
-    renderizarCalendarioCompleto(listaFiltrada);
-}
-
-// Lógica de Alternar Abas (Tabs)
-function alternarAba(idAba) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    event.currentTarget.classList.add('active');
-
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active-content'));
-    document.getElementById(`aba-${idAba}`).classList.add('active-content');
-}
-
-// ==================== 3. LÓGICA DO DASHBOARD INDIVIDUAL ====================
+// ==================== LÓGICA DO DASHBOARD INDIVIDUAL ====================
 function popularSeletores(lista) {
     const selectAdd = document.getElementById('nomeFuncionario');
     const selectCheck = document.getElementById('consultaFuncionario');
@@ -329,7 +327,7 @@ function renderizarDestaqueMes(lista) {
     });
 }
 
-// ==================== 4. GRADE CALENDÁRIO ANUAL COMPLETO ====================
+// ==================== GRADE CALENDÁRIO ANUAL COMPLETO ====================
 function renderizarCalendarioCompleto(lista) {
     const grade = document.getElementById('gradeMeses');
     grade.innerHTML = "";
@@ -381,7 +379,7 @@ function renderizarCalendarioCompleto(lista) {
     }
 }
 
-// ==================== 5. OUTRAS AÇÕES DE MANIPULAÇÃO + AUTOMATE ====================
+// ==================== OUTRAS AÇÕES DE MANIPULAÇÃO + AUTOMATE ====================
 function salvarDayOff() {
     const nome = document.getElementById('nomeFuncionario').value;
     const data = document.getElementById('dataDayOff').value;
@@ -400,13 +398,13 @@ function salvarDayOff() {
 
         const dataFormatada = data.split('-').reverse().join('/');
 
+        // Envia o email correspondente em vez do texto plano do nome do supervisor
         const dadosParaTeams = {
             operador: funcionario.nome,
             data: dataFormatada,
-            supervisor: supervisorLogado
+            supervisor: emailsSupervisores[supervisorLogado] || supervisorLogado
         };
 
-        // Envia para o webhook do Power Automate usando a URL corrigida
         fetch(urlSalvarDayOff, {
             method: "POST",
             headers: {
@@ -425,7 +423,6 @@ function salvarDayOff() {
     }
 }
 
-// Remover Day Off
 function removerDayOff(nome) {
     if(confirm(`Deseja remover o Day Off de ${nome}?`)) {
         const funcionario = dadosFuncionarios.find(f => f.nome === nome);
@@ -436,7 +433,6 @@ function removerDayOff(nome) {
     }
 }
 
-// Consultar Individual
 function consultarFuncionario() {
     const nome = document.getElementById('consultaFuncionario').value;
     const box = document.getElementById('resultadoConsulta');
